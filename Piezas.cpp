@@ -22,6 +22,14 @@
 **/
 Piezas::Piezas()
 {
+    for(int i = 0; i < BOARD_ROWS; i++)
+    {
+        for(int j = 0; j < BOARD_COLS; j++)
+        {
+            board[i][j] = Blank;
+        }
+    }
+    turn = X;//X first Turn
 }
 
 /**
@@ -30,18 +38,55 @@ Piezas::Piezas()
 **/
 void Piezas::reset()
 {
+    for(int i = 0; i < BOARD_ROWS; i++)
+    {
+        for(int j = 0; j < BOARD_COLS; j++)
+        {
+            board[i][j] = Blank;//Blank Board
+        }
+    }
 }
 
 /**
  * Places a piece of the current turn on the board, returns what
- * piece is placed, and toggles which Piece's turn it is. dropPiece does 
- * NOT allow to place a piece in a location where a column is full.
+ * piece is placed, and toggles which Piece's turn it is. 
+ * dropPiece does NOT allow to place a piece in a location where a column is full.
  * In that case, placePiece returns Piece Blank value 
  * Out of bounds coordinates return the Piece Invalid value
  * Trying to drop a piece where it cannot be placed loses the player's turn
 **/ 
 Piece Piezas::dropPiece(int column)
 {
+    if(column < 0 || column >= BOARD_COLS)
+    {
+        return Invalid;
+    }
+
+    auto current_turn = turn;
+    
+    if(turn == O)
+    {
+        turn = X;//toggle X turn
+    }
+    
+    else
+    {
+        turn = O;//toggle O turn
+    }
+
+    for(int row = 0; row < BOARD_ROWS; row++)
+    {
+        if(board[row][column] == Blank)
+        {
+            board[row][column] = current_turn;//Placing current element on blank place
+            return current_turn;//returning placed element
+        }
+
+        if(row == BOARD_ROWS-1 && column == BOARD_COLS-1 && board[row][column]!=Blank)
+        {
+            return Blank;//column is full return Blank
+        }
+    }
     return Blank;
 }
 
@@ -50,8 +95,19 @@ Piece Piezas::dropPiece(int column)
  * are no pieces there, or Invalid if the coordinates are out of bounds
 **/
 Piece Piezas::pieceAt(int row, int column)
-{
-    return Blank;
+{   
+    if(column < 0 || row < 0 || row >= BOARD_ROWS || column >= BOARD_COLS)
+    {
+        return Invalid;
+    }
+    if(board[row][column]==Blank)
+    {
+        return Blank;//Blank pieces 
+    }
+    else
+    {
+        return board[row][column];
+    }
 }
 
 /**
@@ -65,5 +121,84 @@ Piece Piezas::pieceAt(int row, int column)
 **/
 Piece Piezas::gameState()
 {
-    return Blank;
+    int X_count = 0;
+    int O_count = 0;
+
+    for(int i = 0; i < BOARD_ROWS; i++)
+    {
+        int Row_X_count = 0;
+        int Row_O_count = 0;
+        for(int j = 0; j < BOARD_COLS; j++)
+        {
+            if(board[i][j] == X)
+            {
+                Row_X_count ++;
+                if(Row_X_count > X_count)
+                {
+                    X_count = Row_X_count;
+                }
+            }
+            else if(board[i][j] == O)
+            {
+                Row_O_count++;
+                if(Row_O_count > O_count)
+                {
+                    O_count = Row_O_count;
+                }
+            }
+            else
+            {
+                return Invalid;
+            }
+        }
+    }
+
+    for(int j = 0; j < BOARD_COLS; j++)
+    {
+        int Column_X_count= 0;
+        int Column_O_count = 0;
+        
+        for(int i = 0; i < BOARD_ROWS; i++)
+        {
+            if(board[i][j] == X)
+            {
+                Column_X_count++;
+                if(Column_X_count>X_count)
+                {
+                    X_count= Column_X_count;
+                }
+            }
+            else if(board[i][j] == O)
+            {
+                Column_O_count++;
+                if(Column_O_count>O_count)
+                {
+                    O_count= Column_O_count;   
+                }
+            }
+            else
+            {
+                return Invalid;
+            }
+        }
+    }
+
+
+    if(X_count > O_count)
+    {
+        return X;
+    }
+    else if(X_count < O_count)
+    {
+        return O;
+    }
+    else if(X_count == O_count)
+    {
+        return Blank;
+    }
+    else
+    {
+        return Blank;
+    }
+    
 }
